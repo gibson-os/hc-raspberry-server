@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import fcntl
-import struct
 import socket
 
 RECEIVE_PORT = 7363
@@ -20,10 +18,7 @@ class Network:
         self.udpServer = None
         self.udpReceiveReturn = None
 
-        self.subnet = serverIp[0:serverIp.rindex('.')] + '.'
-
         self.create_server()
-        self.set_ip(ip)
 
         self.udpSender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udpSender.settimeout(1)
@@ -35,18 +30,7 @@ class Network:
         self.logger.debug("Connect to Server " + self.serverIp)
         data = self.udpServer.recv(self.send_write_data(TYPE_HANDSHAKE, socket.gethostname()) + 1)
         self.send_receive_return()
-        self.set_ip(ord(data[-1:]))
-
-    def set_ip(self, ip):
-        self.logger.debug("Set IP " + self.subnet + str(ip))
-        self.ip = ip
-        bin_ip = socket.inet_aton(self.subnet + str(ip))
-        ifreq = struct.pack('16sH2s4s8s', self.interface, socket.AF_INET, '\x00'*2, bin_ip, '\x00'*8)
-        fcntl.ioctl(self.udpServer, 0x8916, ifreq)
-        self.logger.debug("IP set")
-
-        self.close_server()
-        self.open_server()
+        # self.set_ip(ord(data[-1:]))
 
     def close_server(self):
         self.logger.debug("Close server")
@@ -102,12 +86,12 @@ class Network:
         self.logger.debug("Receive return received")
 
     def get_sent_data(self, command, data):
-        check_sum = self.ip + command
+        check_sum = command
 
         for char in data:
             check_sum += ord(char)
 
-        return chr(self.ip) + chr(command) + data + chr(check_sum % 256)
+        return chr(command) + data + chr(check_sum % 256)
 
     def receive(self, length):
         return self.udpServer.recv(length)
