@@ -17,14 +17,12 @@ try:
     options, arguments = getopt.getopt(
         sys.argv[1:],
         "i:a:b:s:",
-        ["interface=", "start_address=", "bus_number=", "server_address=", "v", "vv", "vvv"]
+        ["interface=", "bus_number=", "server_address=", "v", "vv", "vvv"]
     )
 
     for option, argument in options:
         if option in ("-i", "--interface"):
             interface = argument
-        elif option in ("-a", "--start_address"):
-            startIp = int(argument)
         elif option in ("-s", "--server_address"):
             serverAddress = argument
         elif option in ("-b", "--bus_number"):
@@ -35,7 +33,7 @@ except getopt.GetoptError:
     pass
 
 logger = logger.Logger(logLevel)
-logger.info("Start Server on interface " + interface + " with ip " + str(startIp) + " for bus " + str(busNumber))
+logger.info("Start Server on interface " + interface + " for bus " + str(busNumber))
 
 logger.debug("Create Bus")
 bus = bus.Bus(busNumber, logger)
