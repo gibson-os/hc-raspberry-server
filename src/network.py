@@ -57,7 +57,7 @@ class Network:
         self.logger.debug("Server opened")
 
     def send_write_data(self, command, data):
-        self.logger.debug("Send write data")
+        self.logger.debug("Send write data to " + self.serverIp + ":" + SEND_PORT)
         self.logger.debug("Command: " + str(command))
         self.logger.debug("Data: " + data)
 
