@@ -28,9 +28,7 @@ class Network:
     def handshake(self):
         self.logger.info("Handshake")
         self.logger.debug("Connect to Server " + self.serverIp)
-        data = self.udpServer.recv(self.send_write_data(TYPE_HANDSHAKE, socket.gethostname()) + 1)
-        self.send_receive_return()
-        # self.set_ip(ord(data[-1:]))
+        self.send_write_data(TYPE_HANDSHAKE, socket.gethostname())
 
     def close_server(self):
         self.logger.debug("Close server")
