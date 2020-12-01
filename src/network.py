@@ -29,6 +29,7 @@ class Network:
         self.logger.info("Handshake")
         self.logger.debug("Connect to Server " + self.serverIp)
         self.send_write_data(TYPE_HANDSHAKE, socket.gethostname())
+        self.receive_receive_return()
 
     def close_server(self):
         self.logger.debug("Close server")
