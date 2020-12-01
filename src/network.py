@@ -42,20 +42,8 @@ class Network:
         self.udpReceiveReturn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.logger.debug("Server created")
 
-    def open_server(self):
-        self.create_server()
-
-        self.logger.debug("Set timeout")
-        self.udpServer.settimeout(10)
-        self.udpReceiveReturn.settimeout(1)
-
-        self.logger.debug("Bind server to " + self.subnet + str(self.ip))
-        self.udpServer.bind((self.subnet + str(self.ip), RECEIVE_PORT))
-        self.udpReceiveReturn.bind((self.subnet + str(self.ip), SEND_PORT))
-        self.logger.debug("Server opened")
-
     def send_write_data(self, command, data):
-        self.logger.debug("Send write data to " + self.serverIp + ":" + SEND_PORT)
+        self.logger.debug("Send write data to " + self.serverIp + ":" + str(SEND_PORT))
         self.logger.debug("Command: " + str(command))
         self.logger.debug("Data: " + data)
 
