@@ -8,7 +8,6 @@ import getopt
 import sys
 
 interface = 'wlan0'  # 'eth0'
-startIp = 254
 serverAddress = '192.168.42.1'
 busNumber = 3
 logLevel = ""
@@ -40,7 +39,7 @@ bus = bus.Bus(busNumber, logger)
 logger.debug("Bus created")
 
 logger.debug("Create network")
-network = network.Network(interface, serverAddress, startIp, logger)
+network = network.Network(interface, serverAddress, logger)
 logger.debug("Network created")
 
 logger.debug("Create hcServer")

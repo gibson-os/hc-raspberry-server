@@ -12,10 +12,10 @@ TYPE_HANDSHAKE = 1
 
 
 class Network:
-    def __init__(self, interface, serverIp, ip, logger):
+    def __init__(self, interface, serverIp, logger):
         self.interface = interface
         self.serverIp = serverIp
-        self.ip = ip
+        self.ip = self.get_ip_address();
         self.logger = logger
         self.udpServer = None
         self.udpReceiveReturn = None
@@ -78,12 +78,17 @@ class Network:
         self.logger.debug("Receive return received")
 
     def get_sent_data(self, command, data):
-        check_sum = command
+        check_sum = 0
+
+        for char in self.ip:
+            check_sum += ord(char)
+
+        check_sum += command
 
         for char in data:
             check_sum += ord(char)
 
-        return self.get_ip_address() + chr(command) + data + chr(check_sum % 256)
+        return self.ip + chr(command) + data + chr(check_sum % 256)
 
     def receive(self, length):
         return self.udpServer.recv(length)
