@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import socket
+import fcntl
+import struct
 
 RECEIVE_PORT = 7363
 SEND_PORT = 7339
@@ -17,7 +19,7 @@ class Network:
         self.logger = logger
         self.udpServer = None
         self.udpReceiveReturn = None
-
+        self.logger.info(self.get_ip_address())
         self.create_server()
 
         self.udpSender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -84,3 +86,10 @@ class Network:
 
     def receive(self, length):
         return self.udpServer.recv(length)
+
+    def get_ip_address(self):
+        return socket.inet_ntoa(fcntl.ioctl(
+            self.udpSender.fileno(),
+            0x8915,  # SIOCGIFADDR
+            struct.pack('256s', self.interface[:15])
+        )[20:24])
