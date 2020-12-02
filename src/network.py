@@ -83,20 +83,14 @@ class Network:
         for char in data:
             check_sum += ord(char)
 
-        return chr(command) + data + chr(check_sum % 256)
+        return self.get_ip_address() + chr(command) + data + chr(check_sum % 256)
 
     def receive(self, length):
         return self.udpServer.recv(length)
 
     def get_ip_address(self):
-        address = fcntl.ioctl(
+        return fcntl.ioctl(
             self.udpSender.fileno(),
             0x8915,  # SIOCGIFADDR
             struct.pack('256s', self.interface[:15])
         )[20:24]
-        foo = ''
-
-        for ipByte in address:
-            foo += hex(ipByte)
-
-        return foo
