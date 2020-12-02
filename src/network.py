@@ -24,8 +24,6 @@ class Network:
         self.udpSender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udpSender.settimeout(1)
 
-        self.logger.info(self.get_ip_address())
-
         self.handshake()
 
     def handshake(self):
