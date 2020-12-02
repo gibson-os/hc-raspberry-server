@@ -7,7 +7,7 @@ import logger
 import getopt
 import sys
 
-interface = 'wlan0:hc'  # 'eth0:hc'
+interface = 'wlan0'  # 'eth0'
 startIp = 254
 serverAddress = '192.168.42.1'
 busNumber = 3
