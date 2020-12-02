@@ -15,7 +15,6 @@ class Network:
     def __init__(self, interface, serverIp, logger):
         self.interface = interface
         self.serverIp = serverIp
-        self.ip = self.get_ip_address();
         self.logger = logger
         self.udpServer = None
         self.udpReceiveReturn = None
@@ -23,6 +22,7 @@ class Network:
 
         self.udpSender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udpSender.settimeout(1)
+        self.ip = self.get_ip_address()
 
         self.handshake()
 
