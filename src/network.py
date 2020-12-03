@@ -68,7 +68,7 @@ class Network:
 
     def receive_receive_return(self):
         self.logger.debug("Receive receive return")
-        self.udpSender.recv(1)
+        self.udpServer.recv(1)
         self.logger.debug("Receive return received")
 
     def get_sent_data(self, command, data):
