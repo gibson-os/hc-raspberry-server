@@ -17,6 +17,7 @@ class Network:
         self.serverIp = serverIp
         self.logger = logger
         self.udpServer = None
+        self.udpReceiveReturn = None
         self.create_server()
 
         self.udpSender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -34,12 +35,15 @@ class Network:
     def close_server(self):
         self.logger.debug("Close server")
         self.udpServer.close()
+        self.udpReceiveReturn.close()
         self.logger.debug("Server closed")
 
     def create_server(self):
         self.logger.debug("Create server")
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udpServer.bind(('', SEND_PORT))
+        self.udpReceiveReturn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udpReceiveReturn.bind(('', RECEIVE_PORT))
         self.logger.debug("Server created")
 
     def send_write_data(self, command, data):
@@ -68,7 +72,7 @@ class Network:
 
     def receive_receive_return(self):
         self.logger.debug("Receive receive return")
-        self.udpServer.recv(1)
+        self.udpReceiveReturn.recv(1)
         self.logger.debug("Receive return received")
 
     def get_sent_data(self, command, data):
