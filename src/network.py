@@ -47,22 +47,22 @@ class Network:
         self.logger.debug("Server created")
 
     def send_write_data(self, command, data):
-        self.logger.debug("Send write data to " + self.serverIp + ":" + str(SEND_PORT))
+        self.logger.debug("Send write data to " + self.serverIp + ":" + str(RECEIVE_PORT))
         self.logger.debug("Command: " + str(command))
         self.logger.debug("Data: " + data)
 
         send_string = self.get_sent_data(command, data)
-        self.udpSender.sendto(send_string, (self.serverIp, SEND_PORT))
+        self.udpSender.sendto(send_string, (self.serverIp, RECEIVE_PORT))
 
         return len(send_string)
 
     def send_read_data(self, command, data):
-        self.logger.debug("Send read data")
+        self.logger.debug("Send read data to " + self.serverIp + ":" + str(SEND_PORT))
         self.logger.debug("Command: " + str(command))
         self.logger.debug("Data: " + data)
 
         send_string = self.get_sent_data(command, data)
-        self.udpServer.sendto(send_string, (self.serverIp, RECEIVE_PORT))
+        self.udpServer.sendto(send_string, (self.serverIp, SEND_PORT))
 
         return len(send_string)
 
