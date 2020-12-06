@@ -16,10 +16,10 @@ class Network:
         self.serverIp = server_ip
         self.logger = logger
         self.receivePort = None
-        self.ip = self.get_ip_address()
 
         self.logger.info("Handshake")
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.ip = self.get_ip_address()
         self.udpServer.bind((self.ip, SEND_PORT))
 
         self.logger.debug("Connect to Server " + self.serverIp)
