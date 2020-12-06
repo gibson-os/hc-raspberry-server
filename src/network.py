@@ -19,6 +19,7 @@ class Network:
 
         self.logger.info("Handshake")
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udpServer.settimeout(1)
         self.ip = self.get_ip_address()
         self.udpServer.bind((self.ip, SEND_PORT))
 
