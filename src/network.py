@@ -18,9 +18,10 @@ class Network:
         self.receivePort = None
 
         self.logger.info("Handshake")
-        self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.udpServer.settimeout(1)
+        self.udpSender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udpSender.settimeout(1)
         self.ip = self.get_ip_address()
+        self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udpServer.bind((self.ip, SEND_PORT))
 
         self.logger.debug("Connect to Server " + self.serverIp)
@@ -77,7 +78,7 @@ class Network:
 
     def get_ip_address(self):
         return fcntl.ioctl(
-            self.udpServer.fileno(),
+            self.udpSender.fileno(),
             0x8915,  # SIOCGIFADDR
             struct.pack('256s', self.interface[:15])
         )[20:24]
