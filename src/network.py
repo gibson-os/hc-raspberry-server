@@ -4,47 +4,32 @@ import socket
 import fcntl
 import struct
 
-RECEIVE_PORT = 7363
-SEND_PORT = 7339
+SEND_PORT = 43000
 
 RECEIVE_RETURN = 0
 TYPE_HANDSHAKE = 1
 
 
 class Network:
-    def __init__(self, interface, serverIp, logger):
+    def __init__(self, interface, server_ip, logger):
         self.interface = interface
-        self.serverIp = serverIp
+        self.serverIp = server_ip
         self.logger = logger
-        self.udpServer = None
-        self.udpReceiveReturn = None
-        self.create_server()
-
-        self.udpSender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.udpSender.settimeout(1)
+        self.receivePort = None
         self.ip = self.get_ip_address()
 
-        self.handshake()
-
-    def handshake(self):
         self.logger.info("Handshake")
-        self.logger.debug("Connect to Server " + self.serverIp)
-        self.send_write_data(TYPE_HANDSHAKE, socket.gethostname())
-        self.receive_receive_return()
-
-    def close_server(self):
-        self.logger.debug("Close server")
-        self.udpServer.close()
-        self.udpReceiveReturn.close()
-        self.logger.debug("Server closed")
-
-    def create_server(self):
-        self.logger.debug("Create server")
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.udpServer.bind(('', SEND_PORT))
-        self.udpReceiveReturn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.udpReceiveReturn.bind(('', RECEIVE_PORT))
-        self.logger.debug("Server created")
+        self.udpServer.bind((self.ip, SEND_PORT))
+
+        self.logger.debug("Connect to Server " + self.serverIp)
+        data = self.udpServer.recv(self.send_write_data(TYPE_HANDSHAKE, socket.gethostname()) + 1)
+        self.receivePort = ord(data[-1:])
+
+        self.udpServer.close()
+        self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udpServer.bind((self.ip, self.receivePort))
+        self.receive_receive_return()
 
     def send_write_data(self, command, data):
         self.logger.debug("Send write data to " + self.serverIp + ":" + str(SEND_PORT))
@@ -52,7 +37,7 @@ class Network:
         self.logger.debug("Data: " + data)
 
         send_string = self.get_sent_data(command, data)
-        self.udpSender.sendto(send_string, (self.serverIp, SEND_PORT))
+        self.udpServer.sendto(send_string, (self.serverIp, SEND_PORT))
 
         return len(send_string)
 
@@ -62,17 +47,17 @@ class Network:
         self.logger.debug("Data: " + data)
 
         send_string = self.get_sent_data(command, data)
-        self.udpServer.sendto(send_string, (self.serverIp, RECEIVE_PORT))
+        self.udpServer.sendto(send_string, (self.serverIp, self.receivePort))
 
         return len(send_string)
 
     def send_receive_return(self):
         self.logger.debug("Send receive return")
-        self.udpServer.sendto(chr(RECEIVE_RETURN), (self.serverIp, RECEIVE_PORT))
+        self.udpServer.sendto(chr(RECEIVE_RETURN), (self.serverIp, self.receivePort))
 
     def receive_receive_return(self):
         self.logger.debug("Receive receive return")
-        self.udpReceiveReturn.recv(1)
+        self.udpServer.recv(1)
         self.logger.debug("Receive return received")
 
     def get_sent_data(self, command, data):
@@ -91,7 +76,7 @@ class Network:
 
     def get_ip_address(self):
         return fcntl.ioctl(
-            self.udpSender.fileno(),
+            self.udpServer.fileno(),
             0x8915,  # SIOCGIFADDR
             struct.pack('256s', self.interface[:15])
         )[20:24]
