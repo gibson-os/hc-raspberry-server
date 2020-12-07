@@ -19,7 +19,8 @@ class Network:
 
         self.logger.info("Handshake")
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.ip = self.get_ip_address()
+        self.ipBytes = self.get_ip_address()
+        self.ip = socket.inet_ntoa(self.ipBytes)
         self.logger.debug("Bind Server on IP " + self.ip)
         self.udpServer.bind((self.ip, SEND_PORT))
 
@@ -64,13 +65,13 @@ class Network:
     def get_sent_data(self, command, data):
         check_sum = command
 
-        for char in self.ip:
+        for char in self.ipBytes:
             check_sum += ord(char)
 
         for char in data:
             check_sum += ord(char)
 
-        return self.ip + chr(command) + data + chr(check_sum % 256)
+        return self.ipBytes + chr(command) + data + chr(check_sum % 256)
 
     def receive(self, length):
         return self.udpServer.recv(length)
