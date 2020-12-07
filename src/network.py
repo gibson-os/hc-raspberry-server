@@ -22,7 +22,7 @@ class Network:
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.ipBytes = self.get_ip_address()
         self.ip = socket.inet_ntoa(self.ipBytes)
-        self.logger.debug("Bind Server on IP " + self.ip)
+        self.logger.debug("Bind Server on IP " + self.ip + ":" + str(START_PORT))
         self.udpServer.bind((self.ip, START_PORT))
 
         self.logger.debug("Connect to Server " + self.serverIp)
@@ -31,6 +31,7 @@ class Network:
 
         self.udpServer.close()
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.logger.debug("Bind Server on IP " + self.ip + ":" + str(self.receivePort))
         self.udpServer.bind((self.ip, self.receivePort))
         self.receive_receive_return()
 
