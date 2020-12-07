@@ -27,13 +27,13 @@ class Network:
 
         self.logger.debug("Connect to Server " + self.serverIp)
         data = self.udpServer.recv(self.send_write_data(TYPE_HANDSHAKE, socket.gethostname()) + 1)
+        self.receive_receive_return()
         self.receivePort = (ord(data[-2:-1]) << 8) | ord(data[-1:])
 
         self.udpServer.close()
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.logger.debug("Bind Server on IP " + self.ip + ":" + str(self.receivePort))
         self.udpServer.bind((self.ip, self.receivePort))
-        self.receive_receive_return()
 
     def send_write_data(self, command, data):
         self.logger.debug("Send write data to " + self.serverIp + ":" + str(SEND_PORT))
