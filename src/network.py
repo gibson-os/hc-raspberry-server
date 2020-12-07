@@ -4,7 +4,8 @@ import socket
 import fcntl
 import struct
 
-SEND_PORT = 43000
+SEND_PORT = 42000
+START_PORT = 43000
 
 RECEIVE_RETURN = 0
 TYPE_HANDSHAKE = 1
@@ -22,7 +23,7 @@ class Network:
         self.ipBytes = self.get_ip_address()
         self.ip = socket.inet_ntoa(self.ipBytes)
         self.logger.debug("Bind Server on IP " + self.ip)
-        self.udpServer.bind((self.ip, SEND_PORT))
+        self.udpServer.bind((self.ip, START_PORT))
 
         self.logger.debug("Connect to Server " + self.serverIp)
         data = self.udpServer.recv(self.send_write_data(TYPE_HANDSHAKE, socket.gethostname()) + 1)
