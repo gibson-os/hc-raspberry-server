@@ -109,7 +109,6 @@ class HcServer:
                                 TYPE_STATUS,
                                 chr(address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
                             )
-                            self.network.receive_receive_return()
                         except:
                             pass
 
@@ -138,7 +137,6 @@ class HcServer:
                 if not self.slaves[address].is_active():
                     self.slaves[address].set_active(True)
                     self.network.send_write_data(TYPE_NEW_SLAVE, chr(address))
-                    self.network.receive_receive_return()
             except:
                 self.slaves[address].set_active(False)
 

@@ -27,7 +27,6 @@ class Network:
 
         self.logger.debug("Connect to Server " + self.serverIp)
         data = self.udpServer.recv(self.send_write_data(TYPE_HANDSHAKE, socket.gethostname()) + 1)
-        self.receive_receive_return()
         self.receivePort = (ord(data[-2:-1]) << 8) | ord(data[-1:])
 
         self.udpServer.close()
@@ -42,6 +41,7 @@ class Network:
 
         send_string = self.get_sent_data(command, data)
         self.udpServer.sendto(send_string, (self.serverIp, SEND_PORT))
+        self.receive_receive_return()
 
         return len(send_string)
 
