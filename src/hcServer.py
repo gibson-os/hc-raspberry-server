@@ -67,20 +67,20 @@ class HcServer:
                     self.network.send_receive_return()
                 else:
                     self.logger.info("Data received")
-                    address = ord(data[1]) >> 1
+                    address = ord(data[0]) >> 1
                     self.logger.debug("Address: " + str(address))
-                    slave_command = ord(data[2])
+                    slave_command = ord(data[1])
                     self.logger.debug("Command: " + str(slave_command))
                     self.logger.debug("Data: " + data)
                     # @todo Checksumme pruefen
 
-                    if ord(data[1]) & 1 == 0:  # Write
-                        self.bus.write(address, slave_command, [ord(i) for i in data[3:]])
+                    if ord(data[0]) & 1 == 0:  # Write
+                        self.bus.write(address, slave_command, [ord(i) for i in data[2:]])
                         self.network.send_receive_return()
                     else:  # Read
                         self.network.send_read_data(
                             TYPE_DATA,
-                            chr(address) + data[2] + self.bus.read(address, slave_command, ord(data[3]))
+                            chr(address) + data[1] + self.bus.read(address, slave_command, ord(data[2]))
                         )
             except Exception:
                 pass
