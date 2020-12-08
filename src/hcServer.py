@@ -74,7 +74,7 @@ class HcServer:
                     self.logger.debug("Data: " + data)
                     # @todo Checksumme pruefen
 
-                    if ord(data[0]) & 1 == 0:  # Write
+                    if ord(data[0]) & 1 == 1:  # Write
                         self.bus.write(address, slave_command, [ord(i) for i in data[2:]])
                         self.network.send_receive_return()
                     else:  # Read
