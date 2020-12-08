@@ -42,7 +42,7 @@ class Bus:
             string += chr(byte)
 
         self.logger.debug("Data: " + string)
-        sleep(.001)
+        sleep(.01)
         self.close_smbus(bus)
 
         return string

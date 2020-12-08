@@ -112,7 +112,7 @@ class HcServer:
                         except:
                             pass
 
-                sleep(.001)
+                sleep(.01)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
