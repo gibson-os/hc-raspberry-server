@@ -57,7 +57,7 @@ class Network:
 
     def send_receive_return(self):
         self.logger.debug("Send receive return")
-        self.udpServer.sendto(chr(RECEIVE_RETURN), (self.serverIp, self.receivePort))
+        self.udpServer.sendto(self.get_sent_data(RECEIVE_RETURN, ''), (self.serverIp, self.receivePort))
 
     def receive_receive_return(self):
         self.logger.debug("Receive receive return")
