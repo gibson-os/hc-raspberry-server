@@ -36,6 +36,7 @@ class Bus:
 
         self.logger.debug("Address: " + str(address))
         self.logger.debug("Command: " + str(command))
+        self.logger.debug("Length: " + str(length))
 
         for byte in bus.read_i2c_block_data(address, command, length):
             string += chr(byte)
