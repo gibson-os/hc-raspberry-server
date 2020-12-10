@@ -14,29 +14,20 @@ class Bus:
         bus = self.get_smbus()
 
         if len(data) == 1:
-            self.logger.info("Write byte data")
-            self.logger.debug("Address: " + str(address))
-            self.logger.debug("Command: " + str(command))
-            self.logger.debug("Data: " + str(data[0]))
+            self.logger.info("Write byte data " + str(data[0]) + " to address " + str(address) + " with command" + str(command))
             bus.write_byte_data(address, command, data[0])
         else:
-            self.logger.info("Write block data")
-            self.logger.debug("Address: " + str(address))
-            self.logger.debug("Command: " + str(command))
+            self.logger.info("Write block data to address " + str(address) + " with command" + str(command))
             # self.logger.debug("Data: " + str(data[0]))
             bus.write_i2c_block_data(address, command, data)
 
         self.close_smbus(bus)
 
     def read(self, address, command, length):
-        self.logger.info("Read data")
+        self.logger.info("Read " + str(length) + " bytes from address " + str(address) + " with command " + str(command))
 
         string = ''
         bus = self.get_smbus()
-
-        self.logger.debug("Address: " + str(address))
-        self.logger.debug("Command: " + str(command))
-        self.logger.debug("Length: " + str(length))
 
         for byte in bus.read_i2c_block_data(address, command, length):
             string += chr(byte)
@@ -48,8 +39,7 @@ class Bus:
         return string
 
     def read_byte(self, address):
-        self.logger.info("Read byte")
-        self.logger.debug("Address: " + str(address))
+        self.logger.info("Read byte from address " + str(address))
 
         bus = self.get_smbus()
 

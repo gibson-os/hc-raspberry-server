@@ -35,9 +35,7 @@ class Network:
         self.udpServer.bind((self.ip, self.receivePort))
 
     def send_write_data(self, command, data):
-        self.logger.debug("Send write data to " + self.serverIp + ":" + str(SEND_PORT))
-        self.logger.debug("Command: " + str(command))
-        self.logger.debug("Data: " + data)
+        self.logger.debug("Send write data " + data + " with command " + command + " to " + self.serverIp + ":" + str(SEND_PORT))
 
         send_string = self.get_sent_data(command, data)
         self.udpServer.sendto(send_string, (self.serverIp, SEND_PORT))
@@ -45,9 +43,7 @@ class Network:
         return len(send_string)
 
     def send_read_data(self, command, data):
-        self.logger.debug("Send read data")
-        self.logger.debug("Command: " + str(command))
-        self.logger.debug("Data: " + data)
+        self.logger.debug("Send read data " + data + " with command " + str(command))
 
         send_string = self.get_sent_data(command, data)
         self.udpServer.sendto(send_string, (self.serverIp, self.receivePort))
@@ -55,7 +51,7 @@ class Network:
         return len(send_string)
 
     def send_receive_return(self):
-        self.logger.debug("Send receive return")
+        self.logger.debug("Send receive return to " + self.serverIp + ":" + str(self.receivePort))
         self.udpServer.sendto(self.get_sent_data(RECEIVE_RETURN, ''), (self.serverIp, self.receivePort))
 
     def get_sent_data(self, command, data):
