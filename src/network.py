@@ -41,7 +41,6 @@ class Network:
 
         send_string = self.get_sent_data(command, data)
         self.udpServer.sendto(send_string, (self.serverIp, SEND_PORT))
-        self.receive_receive_return()
 
         return len(send_string)
 
@@ -58,11 +57,6 @@ class Network:
     def send_receive_return(self):
         self.logger.debug("Send receive return")
         self.udpServer.sendto(self.get_sent_data(RECEIVE_RETURN, ''), (self.serverIp, self.receivePort))
-
-    def receive_receive_return(self):
-        self.logger.debug("Receive receive return")
-        self.udpServer.recv(1)
-        self.logger.debug("Receive return received")
 
     def get_sent_data(self, command, data):
         check_sum = command

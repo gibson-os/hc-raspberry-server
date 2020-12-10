@@ -128,7 +128,7 @@ class HcServer:
 
         self.scanInProcess = True
 
-        for address in range(FIRST_ADDRESS, LAST_ADDRESS):
+        for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
             if self.restartScan:
                 self.logger.warning("Restart scan")
                 self.restartScan = False
