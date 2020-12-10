@@ -35,7 +35,7 @@ class Network:
         self.udpServer.bind((self.ip, self.receivePort))
 
     def send_write_data(self, command, data):
-        self.logger.debug("Send write data " + data + " with command " + command + " to " + self.serverIp + ":" + str(SEND_PORT))
+        self.logger.debug("Send write data " + data + " with command " + str(command) + " to " + self.serverIp + ":" + str(SEND_PORT))
 
         send_string = self.get_sent_data(command, data)
         self.udpServer.sendto(send_string, (self.serverIp, SEND_PORT))
