@@ -43,11 +43,7 @@ class HcServer:
         bus_thread.start()
         self.logger.debug("Read bus input thread started")
 
-        self.logger.debug("Start scan bus thread")
-        scan_thread = threading.Thread(target=self.scan_bus)
-        scan_thread.daemon = True
-        scan_thread.start()
-        self.logger.debug("Scan bus thread started")
+        self.scan_bus()
 
         while True:
             pass
@@ -67,7 +63,7 @@ class HcServer:
                     self.slaves[address].set_input_check(True)
                     self.network.send_receive_return()
                 elif command == TYPE_SCAN_BUS:
-                    # self.scan_bus()
+                    self.scan_bus()
                     self.network.send_receive_return()
                 else:
                     self.logger.info("Data received")
