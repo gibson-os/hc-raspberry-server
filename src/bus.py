@@ -21,6 +21,7 @@ class Bus:
             # self.logger.debug("Data: " + str(data[0]))
             bus.write_i2c_block_data(address, command, data)
 
+        sleep(.01)
         self.close_smbus(bus)
 
     def read(self, address, command, length):
