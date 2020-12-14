@@ -23,7 +23,7 @@ class HcServer:
         self.scanInProcess = False
         self.slaves = dict()
 
-        for address in range(FIRST_ADDRESS, LAST_ADDRESS):
+        for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
             self.slaves[address] = slave.Slave(address, logger)
 
         self.network = network
@@ -89,7 +89,7 @@ class HcServer:
         self.logger.info("Start bus listener")
 
         while True:
-            for address in range(FIRST_ADDRESS, LAST_ADDRESS):
+            for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
                 if self.slaves[address].has_input_check():
                     changed_data_length = 0
 
