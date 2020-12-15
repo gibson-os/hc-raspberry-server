@@ -10,7 +10,7 @@ import sys
 import os
 
 interface = 'wlan0'  # 'eth0'
-serverAddress = '192.168.42.1'
+serverAddress = '192.168.27.1'
 busNumber = 3
 logLevel = ""
 force = False
@@ -18,8 +18,8 @@ force = False
 try:
     options, arguments = getopt.getopt(
         sys.argv[1:],
-        "i:a:b:s:",
-        ["interface=", "bus_number=", "server_address=", "v", "vv", "vvv"]
+        "i:a:b:s:f",
+        ["interface=", "bus_number=", "server_address=", "force", "v", "vv", "vvv"]
     )
 
     for option, argument in options:
@@ -29,9 +29,9 @@ try:
             serverAddress = argument
         elif option in ("-b", "--bus_number"):
             busNumber = int(argument)
-        elif option.startswith("--v"):
+        elif option in ("--v", "--vv", "--vvv"):
             logLevel = option
-        elif option.startswith("-f", "--force"):
+        elif option in ("-f", "--force"):
             force = True
 except getopt.GetoptError:
     pass
@@ -42,8 +42,8 @@ lock_name = 'hcServer'
 locker = locker.Locker()
 locked_pid = locker.is_locked(lock_name)
 
-if not locked_pid:
-    logger.info("Server already run!")
+if locked_pid:
+    logger.info("Server already runs!")
 
     if not force:
         exit(1)
