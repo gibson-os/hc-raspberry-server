@@ -3,14 +3,17 @@
 import bus
 import network
 import hcServer
+import locker
 import logger
 import getopt
 import sys
+import os
 
 interface = 'wlan0'  # 'eth0'
 serverAddress = '192.168.42.1'
 busNumber = 3
 logLevel = ""
+force = False
 
 try:
     options, arguments = getopt.getopt(
@@ -28,11 +31,28 @@ try:
             busNumber = int(argument)
         elif option.startswith("--v"):
             logLevel = option
+        elif option.startswith("-f", "--force"):
+            force = True
 except getopt.GetoptError:
     pass
 
 logger = logger.Logger(logLevel)
+
+lock_name = 'hcServer'
+locker = locker.Locker()
+locked_pid = locker.is_locked(lock_name)
+
+if not locked_pid:
+    logger.info("Server already run!")
+
+    if not force:
+        exit(1)
+
+    logger.info("Force start Server!")
+    os.kill(locked_pid, 9)
+
 logger.info("Start Server on interface " + interface + " for bus " + str(busNumber))
+locker.lock(lock_name)
 
 logger.debug("Create Bus")
 bus = bus.Bus(busNumber, logger)
