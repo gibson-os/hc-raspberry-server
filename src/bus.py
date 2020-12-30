@@ -21,7 +21,7 @@ class Bus:
             # self.logger.debug("Data: " + str(data[0]))
             bus.write_block_data(address, command, data)
 
-        sleep(.01)
+        sleep(.001)
         self.close_smbus(bus)
 
     def read(self, address, command, length):
@@ -34,7 +34,7 @@ class Bus:
             string += chr(byte)
 
         self.logger.debug("Data: " + string)
-        sleep(.01)
+        sleep(.001)
         self.close_smbus(bus)
 
         return string
