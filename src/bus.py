@@ -23,7 +23,7 @@ class Bus:
             # self.logger.debug("Data: " + str(data[0]))
             bus.write_block_data(address, command, data)
 
-        sleep(.001)
+        sleep(.01)
         self.close_smbus(bus)
 
     def read(self, address, command, length):
@@ -36,7 +36,7 @@ class Bus:
             string += chr(byte)
 
         self.logger.debug("Data: " + string)
-        sleep(.001)
+        sleep(.01)
         self.close_smbus(bus)
 
         return string
@@ -69,7 +69,7 @@ class Bus:
     def close_smbus(self, bus):
         self.logger.debug("Close SMBus")
         bus.close()
-        sleep(.001)
+        sleep(.01)
         self.busBlocked = False
         self.logger.debug("SMBus closed")
 
