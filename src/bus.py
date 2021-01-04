@@ -76,7 +76,8 @@ class Bus:
     def wait_for_free(self):
         self.logger.debug("Wait for free bus")
 
-        while self.busBlocked:
-            pass
+        if self.busBlocked:
+            sleep(1)
+            self.busBlocked = False
 
         self.logger.debug("Bus free")
