@@ -17,7 +17,9 @@ class Bus:
             self.logger.info("Write byte data " + str(data[0]) + " to address " + str(address) + " with command" + str(command))
             bus.write_byte_data(address, command, data[0])
         else:
-            self.logger.info("Write block data to address " + str(address) + " with command " + str(command))
+            self.logger.info(
+                "Write block data with length " + str(len(data)) + " to address " + str(address) + " with command " + str(command)
+            )
             # self.logger.debug("Data: " + str(data[0]))
             bus.write_block_data(address, command, data)
 
