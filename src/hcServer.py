@@ -112,7 +112,7 @@ class HcServer:
                         except:
                             pass
 
-                sleep(.01)
+                sleep(.001)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
@@ -140,7 +140,7 @@ class HcServer:
             except:
                 self.slaves[address].set_active(False)
 
-            sleep(.01)
+            sleep(.001)
 
         self.scanInProcess = False
         self.logger.info("Bus scanned")

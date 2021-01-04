@@ -17,13 +17,11 @@ class Bus:
             self.logger.info("Write byte data " + str(data[0]) + " to address " + str(address) + " with command" + str(command))
             bus.write_byte_data(address, command, data[0])
         else:
-            self.logger.info(
-                "Write block data with length " + str(len(data)) + " to address " + str(address) + " with command " + str(command)
-            )
+            self.logger.info("Write block data to address " + str(address) + " with command " + str(command))
             # self.logger.debug("Data: " + str(data[0]))
             bus.write_block_data(address, command, data)
 
-        sleep(.01)
+        sleep(.001)
         self.close_smbus(bus)
 
     def read(self, address, command, length):
@@ -36,7 +34,7 @@ class Bus:
             string += chr(byte)
 
         self.logger.debug("Data: " + string)
-        sleep(.01)
+        sleep(.001)
         self.close_smbus(bus)
 
         return string
@@ -69,15 +67,14 @@ class Bus:
     def close_smbus(self, bus):
         self.logger.debug("Close SMBus")
         bus.close()
-        sleep(.01)
+        sleep(.001)
         self.busBlocked = False
         self.logger.debug("SMBus closed")
 
     def wait_for_free(self):
         self.logger.debug("Wait for free bus")
 
-        if self.busBlocked:
-            sleep(1)
-            self.busBlocked = False
+        while self.busBlocked:
+            sleep(.01)
 
         self.logger.debug("Bus free")
