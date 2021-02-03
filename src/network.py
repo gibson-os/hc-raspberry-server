@@ -3,6 +3,7 @@
 import socket
 import fcntl
 import struct
+from time import sleep
 
 SEND_PORT = 42000
 START_PORT = 43000
@@ -52,6 +53,7 @@ class Network:
 
     def send_receive_return(self):
         self.logger.debug("Send receive return to " + self.serverIp + ":" + str(self.receivePort))
+        sleep(.001)
         self.udpServer.sendto(self.get_sent_data(RECEIVE_RETURN, ''), (self.serverIp, self.receivePort))
 
     def get_sent_data(self, command, data):
