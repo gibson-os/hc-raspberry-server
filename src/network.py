@@ -53,7 +53,7 @@ class Network:
 
     def send_receive_return(self):
         self.logger.debug("Send receive return to " + self.serverIp + ":" + str(self.receivePort))
-        sleep(.01)
+        sleep(.1)
         self.udpServer.sendto(self.get_sent_data(RECEIVE_RETURN, ''), (self.serverIp, self.receivePort))
 
     def get_sent_data(self, command, data):
