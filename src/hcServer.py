@@ -87,6 +87,9 @@ class HcServer:
         self.logger.info("Start read slave input thread for %d" % slave.address)
 
         while True:
+            if not slave.is_active():
+                return
+
             try:
                 self.logger.debug("Check changed data. Address: %d" % slave.address)
                 changed_data_length = ord(self.bus.read(slave.address, I2C_COMMAND_DATA_CHANGED, 1))

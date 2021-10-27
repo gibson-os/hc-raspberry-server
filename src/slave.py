@@ -20,7 +20,6 @@ class Slave:
 
         if not active:
             if self.inputThread is not None:
-                self.inputThread.stop()
                 self.inputThread = None
 
     def is_active(self):
