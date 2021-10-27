@@ -52,7 +52,7 @@ class HcServer:
 
                 if command == TYPE_SLAVE_HAS_INPUT_CHECK:
                     address = ord(data[1])
-                    self.logger.info("Slave %d has input check" % address)
+                    self.logger.debug("Slave %d has input check" % address)
                     self.network.send_receive_return()
 
                     input_thread = threading.Thread(target=self.read_slave_input, args=(self.slaves[address],))
