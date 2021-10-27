@@ -23,7 +23,7 @@ class HcServer:
         self.scanInProcess = False
         self.slaves = dict()
 
-        for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
+        for address in range(FIRST_ADDRESS, LAST_ADDRESS + 1):
             self.slaves[address] = slave.Slave(address, logger)
 
         self.network = network
@@ -36,12 +36,6 @@ class HcServer:
         udp_thread.daemon = True
         udp_thread.start()
         self.logger.debug("UDP thread started")
-
-        self.logger.debug("Start read bus input thread")
-        bus_thread = threading.Thread(target=self.read_bus_input)
-        bus_thread.daemon = True
-        bus_thread.start()
-        self.logger.debug("Read bus input thread started")
 
         self.scan_bus()
 
@@ -57,11 +51,15 @@ class HcServer:
                 command = ord(data[0])
 
                 if command == TYPE_SLAVE_HAS_INPUT_CHECK:
-                    self.logger.info("Slave has input check")
                     address = ord(data[1])
-                    self.logger.debug("Address: " + str(address))
-                    self.slaves[address].set_input_check(True)
+                    self.logger.info("Slave %d has input check" % address)
                     self.network.send_receive_return()
+
+                    input_thread = threading.Thread(target=self.read_slave_input, args=(self.slaves[address],))
+                    input_thread.daemon = True
+                    input_thread.start()
+                    self.slaves[address].set_input_thread(input_thread)
+                    self.logger.debug("Read bus input thread started")
                 elif command == TYPE_SCAN_BUS:
                     self.scan_bus()
                     self.network.send_receive_return()
@@ -85,34 +83,31 @@ class HcServer:
             except Exception:
                 pass
 
-    def read_bus_input(self):
-        self.logger.info("Start bus listener")
+    def read_slave_input(self, slave):
+        self.logger.info("Start read slave input thread for %d" % slave.address)
 
         while True:
-            for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
-                if self.slaves[address].has_input_check():
-                    changed_data_length = 0
+            try:
+                self.logger.debug("Check changed data. Address: %d" % slave.address)
+                changed_data_length = ord(self.bus.read(slave.address, I2C_COMMAND_DATA_CHANGED, 1))
 
-                    try:
-                        self.logger.debug("Check changed data. Address: " + str(address))
-                        changed_data_length = ord(self.bus.read(address, I2C_COMMAND_DATA_CHANGED, 1))
-                    except:
-                        self.logger.warning("Slave not found")
-                        self.slaves[address].set_active(False)
+                try:
+                    self.logger.debug("Changed Data. Length: %d" % changed_data_length)
+                    changed_data = self.bus.read(slave.address, I2C_COMMAND_CHANGED_DATA, changed_data_length)
 
-                    if changed_data_length:
-                        try:
-                            self.logger.debug("Changed Data. Length: " + str(changed_data_length))
-                            changed_data = self.bus.read(address, I2C_COMMAND_CHANGED_DATA, changed_data_length)
+                    self.network.send_write_data(
+                        TYPE_STATUS,
+                        chr(slave.address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
+                    )
+                except:
+                    pass
+            except:
+                self.logger.warning("Slave not found")
+                slave.set_active(False)
 
-                            self.network.send_write_data(
-                                TYPE_STATUS,
-                                chr(address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
-                            )
-                        except:
-                            pass
+                return
 
-                sleep(.001)
+            sleep(.01)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
@@ -124,7 +119,7 @@ class HcServer:
 
         self.scanInProcess = True
 
-        for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
+        for address in range(FIRST_ADDRESS, LAST_ADDRESS + 1):
             if self.restartScan:
                 self.logger.warning("Restart scan")
                 self.restartScan = False

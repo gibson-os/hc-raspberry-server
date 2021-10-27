@@ -6,23 +6,22 @@ class Slave:
         self.address = address
         self.logger = logger
 
-        self.inputCheck = False
+        self.inputThread = None
         self.active = False
 
-    def set_input_check(self, check):
-        self.inputCheck = check
+    def set_input_thread(self, thread):
+        self.inputThread = thread
 
-    def has_input_check(self):
-        if not self.is_active():
-            return False
-
-        return self.inputCheck
+    def get_input_thread(self):
+        return self.inputThread
 
     def set_active(self, active):
         self.active = active
 
         if not active:
-            self.set_input_check(False)
+            if self.inputThread is not None:
+                self.inputThread.stop()
+                self.inputThread = None
 
     def is_active(self):
         return self.active

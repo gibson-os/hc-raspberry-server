@@ -27,7 +27,7 @@ class Bus:
         self.close_smbus(bus)
 
     def read(self, address, command, length):
-        self.logger.info("Read " + str(length) + " bytes from address " + str(address) + " with command " + str(command))
+        self.logger.info("Read %d bytes from address %d with command %d" % (length, address, command))
 
         string = ''
         bus = self.get_smbus()
