@@ -49,9 +49,9 @@ class HcServer:
             try:
                 data = self.network.receive(256)
                 command = ord(data[0])
+                address = ord(data[1]) >> 1
 
                 if command == TYPE_SLAVE_HAS_INPUT_CHECK:
-                    address = ord(data[1])
                     self.logger.debug("Slave %d has input check" % address)
                     self.network.send_receive_return()
 
@@ -65,7 +65,6 @@ class HcServer:
                     self.network.send_receive_return()
                 else:
                     self.logger.info("Data received")
-                    address = ord(data[1]) >> 1
                     self.logger.debug("Address: " + str(address))
                     slave_command = ord(data[2])
                     self.logger.debug("Command: " + str(slave_command))
