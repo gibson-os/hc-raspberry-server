@@ -105,8 +105,6 @@ class HcServer:
                 self.logger.warning("Slave not found")
                 slave.set_active(False)
 
-                return
-
             sleep(.01)
 
     def scan_bus(self):
