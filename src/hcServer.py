@@ -104,7 +104,7 @@ class HcServer:
                 except:
                     pass
             except:
-                self.logger.warning("Slave not found")
+                self.logger.warning("Slave %d not found" % slave.address)
                 slave.set_active(False)
 
             sleep(.01)
