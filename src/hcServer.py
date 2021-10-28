@@ -106,6 +106,8 @@ class HcServer:
                     except:
                         self.logger.warning("Slave %d not found" % address)
 
+                    sleep(.001)
+
     def scan_bus(self):
         self.logger.info("Scan bus")
 
@@ -131,6 +133,8 @@ class HcServer:
                     self.network.send_write_data(TYPE_NEW_SLAVE, chr(address))
             except:
                 self.slaves[address].set_active(False)
+
+            sleep(.001)
 
         self.scanInProcess = False
         self.logger.info("Bus scanned")
