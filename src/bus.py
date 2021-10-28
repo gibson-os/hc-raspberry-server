@@ -13,15 +13,19 @@ class Bus:
     def write(self, address, command, data):
         bus = self.get_smbus()
 
-        if len(data) == 1:
-            self.logger.info("Write byte data " + str(data[0]) + " to address " + str(address) + " with command" + str(command))
-            bus.write_byte_data(address, command, data[0])
-        else:
-            self.logger.info(
-                "Write block data with length " + str(len(data)) + " to address " + str(address) + " with command " + str(command)
-            )
-            # self.logger.debug("Data: " + str(data[0]))
-            bus.write_block_data(address, command, data)
+        try:
+            if len(data) == 1:
+                self.logger.info("Write byte data " + str(data[0]) + " to address " + str(address) + " with command" + str(command))
+                bus.write_byte_data(address, command, data[0])
+            else:
+                self.logger.info(
+                    "Write block data with length " + str(len(data)) + " to address " + str(address) + " with command " + str(command)
+                )
+                # self.logger.debug("Data: " + str(data[0]))
+                bus.write_block_data(address, command, data)
+        except Exception as exception:
+            self.close_smbus(bus)
+            raise exception
 
         sleep(.001)
         self.close_smbus(bus)
@@ -32,8 +36,12 @@ class Bus:
         string = ''
         bus = self.get_smbus()
 
-        for byte in bus.read_i2c_block_data(address, command, length):
-            string += chr(byte)
+        try:
+            for byte in bus.read_i2c_block_data(address, command, length):
+                string += chr(byte)
+        except Exception as exception:
+            self.close_smbus(bus)
+            raise exception
 
         self.logger.debug("Data: " + string)
         sleep(.001)
