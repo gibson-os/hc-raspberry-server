@@ -51,7 +51,7 @@ class Bus:
         bus = self.get_smbus()
 
         try:
-            byte = bus.read_byte_from_bus(bus, address)
+            byte = bus.read_byte(address)
         except Exception as exception:
             self.close_smbus(bus)
             raise exception
@@ -112,11 +112,4 @@ class Bus:
 
             self.read_i2c_block_data(bus, address, command, length, retry + 1)
 
-    def read_byte_from_bus(self, bus, address, retry=0):
-        try:
-            bus.read_byte(address)
-        except Exception as exception:
-            if retry == 9:
-                raise exception
 
-            self.read_byte_from_bus(bus, address, retry + 1)
