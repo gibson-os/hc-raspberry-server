@@ -106,7 +106,7 @@ class HcServer:
                     except:
                         self.logger.warning("Slave %d not found" % address)
 
-                    sleep(.001)
+            sleep(.001)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
