@@ -79,7 +79,6 @@ class HcServer:
 
             for address in range(FIRST_ADDRESS, LAST_ADDRESS + 1):
                 self.read_slave_input(address)
-                sleep(.001)
 
     def read_slave_input(self, address):
         if not self.slaves[address].is_active() or not self.slaves[address].has_input_check():
@@ -131,7 +130,6 @@ class HcServer:
                 self.slaves[address].set_active(False)
 
             self.read_slave_input(address)
-            sleep(.001)
 
         self.scanInProcess = False
         self.logger.info("Bus scanned")
