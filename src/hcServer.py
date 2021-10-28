@@ -31,11 +31,19 @@ class HcServer:
         self.logger = logger
 
     def run(self):
-        self.logger.info("Start UDP listener")
+        self.logger.debug("Start UDP thread")
+        udp_thread = threading.Thread(target=self.read_udp)
+        udp_thread.daemon = True
+        udp_thread.start()
+        self.logger.debug("UDP thread started")
 
-        scan_bus_thread = threading.Thread(target=self.scan_bus)
-        scan_bus_thread.daemon = True
-        scan_bus_thread.start()
+        self.scan_bus()
+
+        while True:
+            sleep(3600)
+
+    def read_udp(self):
+        self.logger.info("Start UDP listener")
 
         while True:
             try:
@@ -49,9 +57,7 @@ class HcServer:
                     self.slaves[address].set_input_check(True)
                 elif command == TYPE_SCAN_BUS:
                     self.network.send_receive_return()
-                    scan_bus_thread = threading.Thread(target=self.scan_bus)
-                    scan_bus_thread.daemon = True
-                    scan_bus_thread.start()
+                    self.scan_bus()
                 else:
                     self.logger.info("Data received")
                     self.logger.debug("Address: " + str(address))
