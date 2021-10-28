@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import slave
+import threading
 from time import sleep
 
 FIRST_ADDRESS = 3
@@ -32,6 +33,10 @@ class HcServer:
     def run(self):
         self.logger.info("Start UDP listener")
 
+        scan_bus_thread = threading.Thread(target=self.scan_bus)
+        scan_bus_thread.daemon = True
+        scan_bus_thread.start()
+
         while True:
             try:
                 data = self.network.receive(256)
@@ -44,7 +49,9 @@ class HcServer:
                     self.slaves[address].set_input_check(True)
                 elif command == TYPE_SCAN_BUS:
                     self.network.send_receive_return()
-                    self.scan_bus()
+                    scan_bus_thread = threading.Thread(target=self.scan_bus)
+                    scan_bus_thread.daemon = True
+                    scan_bus_thread.start()
                 else:
                     self.logger.info("Data received")
                     self.logger.debug("Address: " + str(address))
