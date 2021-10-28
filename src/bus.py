@@ -16,18 +16,17 @@ class Bus:
         try:
             if len(data) == 1:
                 self.logger.info("Write byte data " + str(data[0]) + " to address " + str(address) + " with command" + str(command))
-                bus.write_byte_data(address, command, data[0])
+                self.write_byte_data(bus, address, command, data[0])
             else:
                 self.logger.info(
                     "Write block data with length " + str(len(data)) + " to address " + str(address) + " with command " + str(command)
                 )
                 # self.logger.debug("Data: " + str(data[0]))
-                bus.write_block_data(address, command, data)
+                self.write_block_data(bus, address, command, data)
         except Exception as exception:
             self.close_smbus(bus)
             raise exception
 
-        sleep(.001)
         self.close_smbus(bus)
 
     def read(self, address, command, length):
@@ -37,15 +36,14 @@ class Bus:
         bus = self.get_smbus()
 
         try:
-            for byte in bus.read_i2c_block_data(address, command, length):
+            for byte in self.read_i2c_block_data(bus, address, command, length):
                 string += chr(byte)
         except Exception as exception:
             self.close_smbus(bus)
             raise exception
 
-        self.logger.debug("Data: " + string)
-        sleep(.001)
         self.close_smbus(bus)
+        self.logger.debug("Data: " + string)
 
         return string
 
@@ -55,7 +53,7 @@ class Bus:
         bus = self.get_smbus()
 
         try:
-            byte = bus.read_byte(address)
+            byte = bus.read_byte_from_bus(address)
         except Exception as exception:
             self.close_smbus(bus)
             raise exception
@@ -88,3 +86,39 @@ class Bus:
             pass
 
         self.logger.debug("Bus free")
+
+    def write_byte_data(self, bus, address, command, byte, retry=0):
+        try:
+            bus.write_byte_data(address, command, byte)
+        except Exception as exception:
+            if retry == 9:
+                raise exception
+
+            self.write_byte_data(bus, address, command, byte, retry + 1)
+
+    def write_block_data(self, bus, address, command, data, retry=0):
+        try:
+            bus.write_block_data(address, command, data)
+        except Exception as exception:
+            if retry == 9:
+                raise exception
+
+            self.write_block_data(bus, address, command, data, retry + 1)
+
+    def read_i2c_block_data(self, bus, address, command, length, retry=0):
+        try:
+            bus.read_i2c_block_data(address, command, length)
+        except Exception as exception:
+            if retry == 9:
+                raise exception
+
+            self.read_i2c_block_data(bus, address, command, length, retry + 1)
+
+    def read_byte_from_bus(self, bus, address, retry=0):
+        try:
+            bus.read_byte(address)
+        except Exception as exception:
+            if retry == 9:
+                raise exception
+
+            self.read_byte_from_bus(bus, address, retry + 1)
