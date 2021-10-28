@@ -102,8 +102,8 @@ class HcServer:
             except:
                 pass
         except:
-            self.logger.warning("Slave %d not found" % slave.address)
-            slave.set_active(False)
+            self.logger.warning("Slave %d not found" % self.slaves[address].address)
+            self.slaves[address].set_active(False)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
