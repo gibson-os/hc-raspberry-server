@@ -37,6 +37,12 @@ class HcServer:
         udp_thread.start()
         self.logger.debug("UDP thread started")
 
+        self.logger.debug("Start read bus input thread")
+        bus_thread = threading.Thread(target=self.read_bus_input)
+        bus_thread.daemon = True
+        bus_thread.start()
+        self.logger.debug("Read bus input thread started")
+
         self.scan_bus()
 
         while True:
@@ -77,31 +83,28 @@ class HcServer:
             except Exception:
                 pass
 
-            for address in range(FIRST_ADDRESS, LAST_ADDRESS + 1):
-                self.read_slave_input(address)
+    def read_bus_input(self):
+        self.logger.info("Start bus listener")
 
-    def read_slave_input(self, address):
-        if not self.slaves[address].is_active() or not self.slaves[address].has_input_check():
-            return
+        while True:
+            for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
+                if self.slaves[address].has_input_check():
+                    try:
+                        self.logger.debug("Check changed data. Address: %d" % address)
+                        changed_data_length = ord(self.bus.read(address, I2C_COMMAND_DATA_CHANGED, 1))
 
-        self.logger.debug("Read slave input for %d" % self.slaves[address].address)
+                        try:
+                            self.logger.debug("Changed Data. Length: %d" % changed_data_length)
+                            changed_data = self.bus.read(address, I2C_COMMAND_CHANGED_DATA, changed_data_length)
 
-        try:
-            self.logger.debug("Check changed data. Address: %d" % self.slaves[address].address)
-            changed_data_length = ord(self.bus.read(self.slaves[address].address, I2C_COMMAND_DATA_CHANGED, 1))
-
-            try:
-                self.logger.debug("Changed Data. Length: %d" % changed_data_length)
-                changed_data = self.bus.read(self.slaves[address].address, I2C_COMMAND_CHANGED_DATA, changed_data_length)
-
-                self.network.send_write_data(
-                    TYPE_STATUS,
-                    chr(self.slaves[address].address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
-                )
-            except:
-                pass
-        except:
-            self.logger.warning("Slave %d not found" % self.slaves[address].address)
+                            self.network.send_write_data(
+                                TYPE_STATUS,
+                                chr(address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
+                            )
+                        except:
+                            pass
+                    except:
+                        self.logger.warning("Slave %d not found" % address)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
@@ -128,8 +131,6 @@ class HcServer:
                     self.network.send_write_data(TYPE_NEW_SLAVE, chr(address))
             except:
                 self.slaves[address].set_active(False)
-
-            self.read_slave_input(address)
 
         self.scanInProcess = False
         self.logger.info("Bus scanned")

@@ -89,7 +89,7 @@ class Bus:
         try:
             bus.write_byte_data(address, command, byte)
         except Exception as exception:
-            if retry == 0:
+            if retry == 9:
                 raise exception
 
             self.write_byte_data(bus, address, command, byte, retry + 1)
@@ -98,7 +98,7 @@ class Bus:
         try:
             bus.write_block_data(address, command, data)
         except Exception as exception:
-            if retry == 0:
+            if retry == 9:
                 raise exception
 
             self.write_block_data(bus, address, command, data, retry + 1)
@@ -107,7 +107,7 @@ class Bus:
         try:
             bus.read_i2c_block_data(address, command, length)
         except Exception as exception:
-            if retry == 0:
+            if retry == 9:
                 raise exception
 
             self.read_i2c_block_data(bus, address, command, length, retry + 1)
