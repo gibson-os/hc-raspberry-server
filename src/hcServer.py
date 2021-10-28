@@ -53,7 +53,7 @@ class HcServer:
                     address = ord(data[1]) >> 1
 
                     if command == TYPE_SLAVE_HAS_INPUT_CHECK:
-                        self.logger.debug("Slave %d has input check" % address)
+                        self.logger.info("Slave %d has input check" % address)
                         self.network.send_receive_return()
                         self.slaves[address].set_input_check(True)
                     elif command == TYPE_SCAN_BUS:
