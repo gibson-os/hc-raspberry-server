@@ -46,68 +46,64 @@ class HcServer:
         self.logger.info("Start UDP listener")
 
         while True:
-            try:
-                data = self.network.receive(256)
-                command = ord(data[0])
-                address = ord(data[1]) >> 1
-
-                if command == TYPE_SLAVE_HAS_INPUT_CHECK:
-                    self.logger.debug("Slave %d has input check" % address)
-                    self.network.send_receive_return()
-
-                    input_thread = threading.Thread(target=self.read_slave_input, args=(self.slaves[address],))
-                    input_thread.daemon = True
-                    input_thread.start()
-                    self.slaves[address].set_input_thread(input_thread)
-                    self.logger.debug("Read bus input thread started")
-                elif command == TYPE_SCAN_BUS:
-                    self.scan_bus()
-                    self.network.send_receive_return()
-                else:
-                    self.logger.info("Data received")
-                    self.logger.debug("Address: " + str(address))
-                    slave_command = ord(data[2])
-                    self.logger.debug("Command: " + str(slave_command))
-                    self.logger.debug("Data: " + data)
-                    # @todo Checksumme pruefen
-
-                    if ord(data[1]) & 1 == 1:  # Write
-                        self.bus.write(address, slave_command, [ord(i) for i in data[3:]])
-                        self.network.send_receive_return()
-                    else:  # Read
-                        self.network.send_read_data(
-                            TYPE_DATA,
-                            chr(address) + data[2] + self.bus.read(address, slave_command, ord(data[3]))
-                        )
-            except Exception:
-                pass
-
-    def read_slave_input(self, slave):
-        self.logger.info("Start read slave input thread for %d" % slave.address)
-
-        while True:
-            if not slave.is_active():
-                return
-
-            try:
-                self.logger.debug("Check changed data. Address: %d" % slave.address)
-                changed_data_length = ord(self.bus.read(slave.address, I2C_COMMAND_DATA_CHANGED, 1))
-
+            for address in range(FIRST_ADDRESS, LAST_ADDRESS + 1):
                 try:
-                    self.logger.debug("Changed Data. Length: %d" % changed_data_length)
-                    changed_data = self.bus.read(slave.address, I2C_COMMAND_CHANGED_DATA, changed_data_length)
+                    data = self.network.receive(256)
+                    command = ord(data[0])
+                    address = ord(data[1]) >> 1
 
-                    self.network.send_write_data(
-                        TYPE_STATUS,
-                        chr(slave.address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
-                    )
-                except:
+                    if command == TYPE_SLAVE_HAS_INPUT_CHECK:
+                        self.logger.debug("Slave %d has input check" % address)
+                        self.network.send_receive_return()
+                        self.slaves[address].set_input_check(True)
+                    elif command == TYPE_SCAN_BUS:
+                        self.network.send_receive_return()
+                        self.scan_bus()
+                    else:
+                        self.logger.info("Data received")
+                        self.logger.debug("Address: " + str(address))
+                        slave_command = ord(data[2])
+                        self.logger.debug("Command: " + str(slave_command))
+                        self.logger.debug("Data: " + data)
+                        # @todo Checksumme pruefen
+
+                        if ord(data[1]) & 1 == 1:  # Write
+                            self.bus.write(address, slave_command, [ord(i) for i in data[3:]])
+                            self.network.send_receive_return()
+                        else:  # Read
+                            self.network.send_read_data(
+                                TYPE_DATA,
+                                chr(address) + data[2] + self.bus.read(address, slave_command, ord(data[3]))
+                            )
+                except Exception:
                     pass
-            except:
-                self.logger.warning("Slave %d not found" % slave.address)
-                slave.set_active(False)
 
-            sleep(.01)
+                self.read_slave_input(address)
+                sleep(.001)
+
+    def read_slave_input(self, address):
+        if not self.slaves[address].is_active() or not self.slaves[address].has_input_check():
+            return
+
+        self.logger.debug("Read slave input for %d" % self.slaves[address].address)
+
+        try:
+            self.logger.debug("Check changed data. Address: %d" % self.slaves[address].address)
+            changed_data_length = ord(self.bus.read(self.slaves[address].address, I2C_COMMAND_DATA_CHANGED, 1))
+
+            try:
+                self.logger.debug("Changed Data. Length: %d" % changed_data_length)
+                changed_data = self.bus.read(self.slaves[address].address, I2C_COMMAND_CHANGED_DATA, changed_data_length)
+
+                self.network.send_write_data(
+                    TYPE_STATUS,
+                    chr(self.slaves[address].address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
+                )
+            except:
+                pass
+        except:
+            self.logger.warning("Slave %d not found" % slave.address)
+            slave.set_active(False)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
@@ -135,6 +131,7 @@ class HcServer:
             except:
                 self.slaves[address].set_active(False)
 
+            self.read_slave_input(address)
             sleep(.001)
 
         self.scanInProcess = False
