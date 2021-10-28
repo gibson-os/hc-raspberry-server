@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import slave
-import threading
 from time import sleep
 
 FIRST_ADDRESS = 3
@@ -31,53 +30,41 @@ class HcServer:
         self.logger = logger
 
     def run(self):
-        self.logger.debug("Start UDP thread")
-        udp_thread = threading.Thread(target=self.read_udp)
-        udp_thread.daemon = True
-        udp_thread.start()
-        self.logger.debug("UDP thread started")
-
-        self.scan_bus()
-
-        while True:
-            sleep(3600)
-
-    def read_udp(self):
         self.logger.info("Start UDP listener")
 
         while True:
+            try:
+                data = self.network.receive(256)
+                command = ord(data[0])
+                address = ord(data[1]) >> 1
+
+                if command == TYPE_SLAVE_HAS_INPUT_CHECK:
+                    self.logger.info("Slave %d has input check" % address)
+                    self.network.send_receive_return()
+                    self.slaves[address].set_input_check(True)
+                elif command == TYPE_SCAN_BUS:
+                    self.network.send_receive_return()
+                    self.scan_bus()
+                else:
+                    self.logger.info("Data received")
+                    self.logger.debug("Address: " + str(address))
+                    slave_command = ord(data[2])
+                    self.logger.debug("Command: " + str(slave_command))
+                    self.logger.debug("Data: " + data)
+                    # @todo Checksumme pruefen
+
+                    if ord(data[1]) & 1 == 1:  # Write
+                        self.bus.write(address, slave_command, [ord(i) for i in data[3:]])
+                        self.network.send_receive_return()
+                    else:  # Read
+                        self.network.send_read_data(
+                            TYPE_DATA,
+                            chr(address) + data[2] + self.bus.read(address, slave_command, ord(data[3]))
+                        )
+            except Exception:
+                pass
+
             for address in range(FIRST_ADDRESS, LAST_ADDRESS + 1):
-                try:
-                    data = self.network.receive(256)
-                    command = ord(data[0])
-                    address = ord(data[1]) >> 1
-
-                    if command == TYPE_SLAVE_HAS_INPUT_CHECK:
-                        self.logger.info("Slave %d has input check" % address)
-                        self.network.send_receive_return()
-                        self.slaves[address].set_input_check(True)
-                    elif command == TYPE_SCAN_BUS:
-                        self.network.send_receive_return()
-                        self.scan_bus()
-                    else:
-                        self.logger.info("Data received")
-                        self.logger.debug("Address: " + str(address))
-                        slave_command = ord(data[2])
-                        self.logger.debug("Command: " + str(slave_command))
-                        self.logger.debug("Data: " + data)
-                        # @todo Checksumme pruefen
-
-                        if ord(data[1]) & 1 == 1:  # Write
-                            self.bus.write(address, slave_command, [ord(i) for i in data[3:]])
-                            self.network.send_receive_return()
-                        else:  # Read
-                            self.network.send_read_data(
-                                TYPE_DATA,
-                                chr(address) + data[2] + self.bus.read(address, slave_command, ord(data[3]))
-                            )
-                except Exception:
-                    pass
-
                 self.read_slave_input(address)
                 sleep(.001)
 
