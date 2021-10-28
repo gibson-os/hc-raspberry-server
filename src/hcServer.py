@@ -93,6 +93,9 @@ class HcServer:
                         self.logger.debug("Check changed data. Address: %d" % address)
                         changed_data_length = ord(self.bus.read(address, I2C_COMMAND_DATA_CHANGED, 1))
 
+                        if changed_data_length == 0:
+                            continue
+
                         try:
                             self.logger.debug("Changed Data. Length: %d" % changed_data_length)
                             changed_data = self.bus.read(address, I2C_COMMAND_CHANGED_DATA, changed_data_length)
