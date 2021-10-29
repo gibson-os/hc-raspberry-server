@@ -4,7 +4,7 @@ import slave
 import threading
 from time import sleep
 
-FIRST_ADDRESS = 3
+FIRST_ADDRESS = 8
 LAST_ADDRESS = 119
 
 TYPE_STATUS = 2
