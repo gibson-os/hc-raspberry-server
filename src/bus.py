@@ -15,10 +15,10 @@ class Bus:
 
         try:
             if len(data) == 1:
-                self.logger.info("Write byte data %d to address %d with command %d" % (data[0], address, command))
+                self.logger.debug("Write byte data %d to address %d with command %d" % (data[0], address, command))
                 bus.write_byte_data(address, command, data[0])
             else:
-                self.logger.info("Write block data with length %d to address %d with command %d" % (len(data), address, command))
+                self.logger.debug("Write block data with length %d to address %d with command %d" % (len(data), address, command))
                 # self.logger.debug("Data: " + str(data[0]))
                 bus.write_block_data(address, command, data)
         except Exception as exception:
@@ -28,7 +28,7 @@ class Bus:
         self.close_smbus(bus)
 
     def read(self, address, command, length):
-        self.logger.info("Read %d bytes from address %d with command %d" % (length, address, command))
+        self.logger.debug("Read %d bytes from address %d with command %d" % (length, address, command))
 
         string = ''
         bus = self.get_smbus()
@@ -46,7 +46,7 @@ class Bus:
         return string
 
     def read_byte(self, address):
-        self.logger.info("Read byte from address " + str(address))
+        self.logger.debug("Read byte from address " + str(address))
 
         bus = self.get_smbus()
 
