@@ -58,14 +58,19 @@ class Network:
 
     def get_sent_data(self, command, data):
         check_sum = command
+        send_data = b''
 
         for char in self.ipBytes:
-            check_sum += ord(char)
+            check_sum += char
+            send_data += char.to_bytes(1, 'big')
+
+        send_data += command.to_bytes(1, 'big')
 
         for char in data:
             check_sum += ord(char)
+            send_data += ord(char).to_bytes(1, 'big')
 
-        return self.ipBytes + chr(command) + data + chr(check_sum % 256)
+        return send_data + (check_sum % 256).to_bytes(1, 'big')
 
     def receive(self, length):
         return self.udpServer.recv(length)
@@ -74,5 +79,5 @@ class Network:
         return fcntl.ioctl(
             self.udpServer.fileno(),
             0x8915,  # SIOCGIFADDR
-            struct.pack('256s', self.interface[:15])
+            struct.pack('256s', bytes(self.interface[:15], 'utf-8'))
         )[20:24]

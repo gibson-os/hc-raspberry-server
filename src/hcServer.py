@@ -54,8 +54,8 @@ class HcServer:
         while True:
             try:
                 data = self.network.receive(256)
-                command = ord(data[0])
-                address = ord(data[1]) >> 1
+                command = data[0]
+                address = data[1] >> 1
 
                 if command == TYPE_SLAVE_HAS_INPUT_CHECK:
                     self.logger.info("Slave %d has input check" % address)
@@ -66,22 +66,22 @@ class HcServer:
                     self.scan_bus()
                 else:
                     self.logger.info("Data received")
-                    self.logger.debug("Address: " + str(address))
-                    slave_command = ord(data[2])
-                    self.logger.debug("Command: " + str(slave_command))
-                    self.logger.debug("Data: " + data)
+                    self.logger.debug("Address: %d" % address)
+                    slave_command = data[2]
+                    self.logger.debug("Command: %d" % slave_command)
+                    self.logger.debug("Data: %s" % data)
                     # @todo Checksumme pruefen
 
-                    if ord(data[1]) & 1 == 1:  # Write
-                        self.bus.write(address, slave_command, [ord(i) for i in data[3:]])
+                    if data[1] & 1 == 1:  # Write
+                        self.bus.write(address, slave_command, [i for i in data[3:]])
                         self.network.send_receive_return()
                     else:  # Read
                         self.network.send_read_data(
                             TYPE_DATA,
-                            chr(address) + data[2] + self.bus.read(address, slave_command, ord(data[3]))
+                            chr(address) + chr(data[2]) + self.bus.read(address, slave_command, data[3])
                         )
-            except Exception:
-                pass
+            except Exception as exception:
+                self.logger.debug(exception)
 
     def read_bus_input(self):
         self.logger.info("Start bus listener")
@@ -104,9 +104,10 @@ class HcServer:
                                 TYPE_STATUS,
                                 chr(address) + chr(I2C_COMMAND_DATA_CHANGED) + changed_data
                             )
-                        except:
-                            pass
-                    except:
+                        except Exception as exception:
+                            self.logger.debug(exception)
+                    except Exception as exception:
+                        self.logger.debug(exception)
                         self.logger.warning("Slave %d not found" % address)
 
             sleep(.001)
@@ -134,7 +135,8 @@ class HcServer:
                 if not self.slaves[address].is_active():
                     self.slaves[address].set_active(True)
                     self.network.send_write_data(TYPE_NEW_SLAVE, chr(address))
-            except:
+            except Exception as exception:
+                self.logger.debug(exception)
                 self.slaves[address].set_active(False)
 
             sleep(.001)
