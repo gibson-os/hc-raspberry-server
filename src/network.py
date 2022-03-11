@@ -60,9 +60,9 @@ class Network:
         check_sum = command
         send_data = b''
 
-        for char in self.ipBytes:
-            check_sum += char
-            send_data += char.to_bytes(1, 'big')
+        for ipByte in self.ipBytes:
+            check_sum += ipByte
+            send_data += ipByte.to_bytes(1, 'big')
 
         send_data += command.to_bytes(1, 'big')
 
