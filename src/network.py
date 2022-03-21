@@ -25,6 +25,7 @@ class Network:
         self.ip = socket.inet_ntoa(self.ipBytes)
         self.logger.debug("Bind Server on IP " + self.ip + ":" + str(START_PORT))
         self.udpServer.bind((self.ip, START_PORT))
+        self.udpServer.settimeout(10)
 
         self.logger.debug("Connect to Server " + self.serverIp)
         data = self.udpServer.recv(self.send_write_data(TYPE_HANDSHAKE, socket.gethostname()) + 1)
@@ -34,6 +35,7 @@ class Network:
         self.udpServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.logger.debug("Bind Server on IP " + self.ip + ":" + str(self.receivePort))
         self.udpServer.bind((self.ip, self.receivePort))
+        self.udpServer.settimeout(30)
 
     def send_write_data(self, command, data):
         self.logger.debug("Send write data \"" + data + "\" with command " + str(command) + " to " + self.serverIp + ":" + str(SEND_PORT))
