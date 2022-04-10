@@ -110,7 +110,7 @@ class HcServer:
                         self.logger.debug(exception)
                         self.logger.warning("Slave %d not found" % address)
 
-                sleep(.001)
+                sleep(.002)
 
     def scan_bus(self):
         self.logger.info("Scan bus")
