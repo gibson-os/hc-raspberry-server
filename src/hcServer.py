@@ -155,6 +155,8 @@ class HcServer:
         self.logger.info("Bus scanned")
 
     def detect_corrupted_bus(self):
+        self.logger.debug("Detect corrupted bus")
+
         for address in range(FIRST_CORRUPT_CHECK_ADDRESS, FIRST_ADDRESS):
             try:
                 self.bus.read_byte(address)
