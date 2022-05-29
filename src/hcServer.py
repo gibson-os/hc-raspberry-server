@@ -164,6 +164,6 @@ class HcServer:
                 return False
 
         self.logger.warning("Bus is corrupted!")
-        self.network.send_read_data(TYPE_ERROR, ERROR_BUS_CORRUPTED)
+        self.network.send_read_data(TYPE_ERROR, chr(ERROR_BUS_CORRUPTED))
 
         return True
