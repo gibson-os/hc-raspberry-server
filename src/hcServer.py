@@ -4,14 +4,18 @@ import slave
 import threading
 from time import sleep
 
+FIRST_CORRUPT_CHECK_ADDRESS = 0
 FIRST_ADDRESS = 8
 LAST_ADDRESS = 119
 
+TYPE_ERROR = 0
 TYPE_STATUS = 2
 TYPE_NEW_SLAVE = 3
 TYPE_SLAVE_HAS_INPUT_CHECK = 4
 TYPE_SCAN_BUS = 5
 TYPE_DATA = 255
+
+ERROR_BUS_CORRUPTED = 1
 
 I2C_COMMAND_DATA_CHANGED = 251
 I2C_COMMAND_CHANGED_DATA = 255
@@ -31,6 +35,9 @@ class HcServer:
         self.logger = logger
 
     def run(self):
+        if self.detect_corrupted_bus():
+            return
+
         self.logger.debug("Start UDP thread")
         udp_thread = threading.Thread(target=self.read_udp)
         udp_thread.daemon = True
@@ -47,6 +54,9 @@ class HcServer:
 
         while True:
             sleep(3600)
+
+            if self.detect_corrupted_bus():
+                return
 
     def read_udp(self):
         self.logger.info("Start UDP listener")
@@ -87,7 +97,7 @@ class HcServer:
         self.logger.info("Start bus listener")
 
         while True:
-            for address in range(FIRST_ADDRESS, LAST_ADDRESS+1):
+            for address in range(FIRST_ADDRESS, LAST_ADDRESS + 1):
                 if self.slaves[address].has_input_check():
                     try:
                         self.logger.debug("Check changed data. Address: %d" % address)
@@ -143,3 +153,15 @@ class HcServer:
 
         self.scanInProcess = False
         self.logger.info("Bus scanned")
+
+    def detect_corrupted_bus(self):
+        for address in range(FIRST_CORRUPT_CHECK_ADDRESS, FIRST_ADDRESS):
+            try:
+                self.bus.read_byte(address)
+            except Exception:
+                return False
+
+        self.logger.warning("Bus is corrupted!")
+        self.network.send_read_data(TYPE_ERROR, ERROR_BUS_CORRUPTED)
+
+        return True
