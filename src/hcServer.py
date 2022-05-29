@@ -53,7 +53,7 @@ class HcServer:
         self.scan_bus()
 
         while True:
-            sleep(3600)
+            sleep(60)
 
             if self.detect_corrupted_bus():
                 return
